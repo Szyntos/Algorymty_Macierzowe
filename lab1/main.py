@@ -73,31 +73,31 @@ class MatrixMultiplier:
             elif self.is_power_of_two(B.n):
                 A11, A12, A21, A22 = self.matrix_partition_sq2(A)
                 B11, B12, B21, B22 = self.matrix_partition_sq2(B)
-                self.Strassen_flops['add'] += A11.n
-                self.Strassen_flops['add'] += B11.n
+                self.Strassen_flops['add'] += A11.n * A11.n
+                self.Strassen_flops['add'] += B11.n * B11.n
                 P1 = self.Strassen_wrap(A11 + A22, B11 + B22)
-                self.Strassen_flops['add'] += A11.n
+                self.Strassen_flops['add'] += A11.n * A11.n
                 P2 = self.Strassen_wrap(A21 + A22, B11)
-                self.Strassen_flops['sub'] += B12.n
+                self.Strassen_flops['sub'] += B12.n * B12.n
                 P3 = self.Strassen_wrap(A11, B12 - B22)
-                self.Strassen_flops['sub'] += B21.n
+                self.Strassen_flops['sub'] += B21.n * B21.n
                 P4 = self.Strassen_wrap(A22, B21 - B11)
-                self.Strassen_flops['add'] += A11.n
+                self.Strassen_flops['add'] += A11.n * A11.n
                 P5 = self.Strassen_wrap(A11 + A12, B22)
-                self.Strassen_flops['sub'] += A21.n
-                self.Strassen_flops['add'] += B11.n
+                self.Strassen_flops['sub'] += A21.n * A21.n
+                self.Strassen_flops['add'] += B11.n * B11.n
                 P6 = self.Strassen_wrap(A21 - A11, B11 + B12)
-                self.Strassen_flops['sub'] += A12.n
-                self.Strassen_flops['add'] += B21.n
+                self.Strassen_flops['sub'] += A12.n * A12.n
+                self.Strassen_flops['add'] += B21.n * B21.n
                 P7 = self.Strassen_wrap(A12 - A22, B21 + B22)
-                self.Strassen_flops['add'] += P1.n
-                self.Strassen_flops['add'] += P5.n
-                self.Strassen_flops['add'] += P3.n
-                self.Strassen_flops['add'] += P2.n
-                self.Strassen_flops['add'] += P2.n
-                self.Strassen_flops['add'] += P3.n
-                self.Strassen_flops['sub'] += P4.n
-                self.Strassen_flops['sub'] += P1.n
+                self.Strassen_flops['add'] += P1.n * P1.n
+                self.Strassen_flops['add'] += P5.n * P5.n
+                self.Strassen_flops['add'] += P3.n * P3.n
+                self.Strassen_flops['add'] += P2.n * P2.n
+                self.Strassen_flops['add'] += P2.n * P2.n
+                self.Strassen_flops['add'] += P3.n * P3.n
+                self.Strassen_flops['sub'] += P4.n * P4.n
+                self.Strassen_flops['sub'] += P1.n * P1.n
                 C = self.matrix_repartition_sq2(P1 + P4 - P5 + P7,
                                                 P3 + P5,
                                                 P2 + P4,
@@ -132,11 +132,16 @@ def create_M_2(n):
 #             [5, 6, 7, 8],
 #             [9, 10, 11, 12],
 #             [13, 14, 15, 16]])
-A = create_M_2(6)
-B = create_M_2(6)
+
+A = create_M_2(2)
+B = create_M_2(2)
+
 MM = MatrixMultiplier(A, B)
-# A = create_M_2(3)
+# # A = create_M_2(3)
 binet = MM.Binet()
+
 stras = MM.Strassen()
+
 it = MM.iterative()
+
 MM.print_flops()

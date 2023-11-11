@@ -14,13 +14,13 @@ class Matrix:
 
     def __add__(self, other):
         if self.n == other.n and self.m == other.m:
-            return Matrix([[self.matrix[j][i] + other.matrix[j][i] for i in range(self.n)] for j in range(self.m)])
+            return Matrix([[self[j][i] + other[j][i] for i in range(self.n)] for j in range(self.m)])
         else:
             raise Exception("Not matching sizes")
 
     def __sub__(self, other):
         if self.n == other.n and self.m == other.m:
-            return Matrix([[self.matrix[j][i] - other.matrix[j][i] for i in range(self.n)] for j in range(self.m)])
+            return Matrix([[self[j][i] - other[j][i] for i in range(self.n)] for j in range(self.m)])
         else:
             raise Exception("Not matching sizes")
 
