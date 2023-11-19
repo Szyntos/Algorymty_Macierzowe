@@ -92,8 +92,8 @@ def LU(A):
     Ls, Us = LU(S)
     U22 = Us
     L22 = Ls
-    return [matrix_repartition(L11, np.zeros(L11.shape, dtype=Num), L21, L22),
-            matrix_repartition(U11, U12, np.zeros(U11.shape, dtype=Num), U22)]
+    return [matrix_repartition(L11, np.zeros((L11.shape[0], L22.shape[1]), dtype=Num), L21, L22),
+            matrix_repartition(U11, U12, np.zeros((U22.shape[0], U11.shape[1]), dtype=Num), U22)]
 
 
 def check_LU(A):
@@ -101,7 +101,7 @@ def check_LU(A):
     return compare(L, np.tril(L)) and compare(U, np.triu(U)) and compare(A, L @ U)
 
 
-A = create_M(8)
+A = create_M(3)
 L, U = LU(A)
 print(check_LU(A))
 
