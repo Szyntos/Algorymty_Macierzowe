@@ -1,22 +1,55 @@
 import numpy as np
 from collections import Counter
 import pandas as pd
+from time import time
+import matplotlib.pyplot as plt
+import seaborn as sns
 import random
+from numpy.polynomial import Polynomial
 class Num(float):
     counts = Counter(mul=0, add=0)
     def __add__(self, other):
         self.counts["add"] += 1
         return Num(super(Num, self).__add__(other))
+    def __radd__(self, other):
+        self.counts["add"] += 1
+        return Num(super(Num, self).__radd__(other))
     def __mul__(self, other):
         self.counts["mul"] += 1
         return Num(super(Num, self).__mul__(other))
+    def __rmul__(self, other):
+        self.counts["mul"] += 1
+        return Num(super(Num, self).__rmul__(other))
     def __sub__(self, other):
         self.counts["add"] += 1
         return Num(super(Num, self).__sub__(other))
+    def __rsub__(self, other):
+        self.counts["add"] += 1
+        return Num(super(Num, self).__rsub__(other))
     def reset_counter(self):
         self.counts["mul"] = 0
         self.counts["add"] = 0
 
+
+n = Num(9)
+m = Num(18)
+m += Num(18)
+n += m
+
+j = Num(90)
+j += 1
+j += 1
+j += 1
+j += 1
+a = 5
+a += Num(9)
+a = 5
+a *= Num(9)
+a = 5
+a -= Num(9)
+print(n, m.counts)
+
+j.reset_counter()
 
 class MatrixMultiplier:
 
@@ -61,10 +94,10 @@ class MatrixMultiplier:
     def binet_wrap(self, A, B):
         C = np.zeros((1, 1), dtype=A.dtype)
 
-        if 1 or (A.shape[0] == A.shape[1] and A.shape[1] == B.shape[0] and B.shape[0] == B.shape[1]):
-            if A.shape[0] == 1 or A.shape[1] == 1:
-                return A @ B
-            else:
+        if A.shape[0] == A.shape[1] and A.shape[1] == B.shape[0] and B.shape[0] == B.shape[1]:
+            if A.shape[0] == 1:
+                return np.array([[Num(A[0, 0] * B[0, 0])]], dtype=Num)
+            elif self.is_power_of_two(B.shape[0]):
                 A11, A12, A21, A22 = self.matrix_partition_sq2(A)
                 B11, B12, B21, B22 = self.matrix_partition_sq2(B)
                 C = self.matrix_repartition_sq2(self.binet_wrap(A11, B11) + self.binet_wrap(A12, B21),
@@ -209,46 +242,120 @@ class MatrixMultiplier:
     def get_current_flops(self):
         return Num().counts
 
-
 def create_M_2(n):
     n = 2 ** n
-    return np.array([[Num((j * n + i + 1)/(n*n)) for i in range(n)] for j in range(n)], dtype=Num)
-# A = create_M_2(4)
-# B = create_M_2(4)
-A = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(3)] for j in range(3)], dtype=Num)
-B = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(3)] for j in range(3)], dtype=Num)
+    return np.array([[Num((random.uniform(0.00000001, 1))) for i in range(n)] for j in range(n)], dtype=Num)
+def create_matrices_for_alphabinet(n):
+    n = 2 ** n
+    A = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(4*n)] for j in range(4*n)], dtype=Num)
+    B = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(5*n)] for j in range(4*n)], dtype=Num)
+    return A, B
+A = create_M_2(4)
+B = create_M_2(4)
 M = MatrixMultiplier(A, B)
-# M.reset_counter()
-# M.strassen()
-# print(M.get_current_flops())
+M.reset_counter()
+M.strassen()
+print(M.get_current_flops())
 M.reset_counter()
 M.binet()
-print("Binet ", M.check(), M.result)
 print(M.get_current_flops())
-x = 2**3
-C = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(4*x)] for j in range(4*x)], dtype=Num)
-D = np.array([[Num((random.uniform(0.00000001, 1))) for i in range(5*x)] for j in range(4*x)], dtype=Num)
-M.A = C
-M.B = D
-print(M.B.shape)
-M.reset_counter()
-M.alpha_binet()
-print(M.get_current_flops())
-M.reset_counter()
-M.iterative()
-print(M.get_current_flops())
-print(M.check())
-
 def test_functions(bound):
     df = pd.DataFrame()
     MM = MatrixMultiplier(create_M_2(1), create_M_2(1))
     for n in range(2, bound):
         MM.A, MM.B = create_M_2(n), create_M_2(n)
-        methods = {"Iterative":MM.iterative, "Binet":MM.binet, "Strassen":MM.strassen, "AlphaStrassen": MM.alpha_strassen}
+        methods = {"Iterative":MM.iterative, "Binet":MM.binet, "Strassen":MM.strassen, "AlphaStrassen": MM.alpha_strassen, "AlphaBinet":MM.alpha_binet}
         for method_name, method in methods.items():
-            print(n, method_name)
+            print(n, method_name[0], end=" ")
+            if method_name == "AlphaBinet":
+                MM.A, MM.B = create_matrices_for_alphabinet(n)
             method()
             df.at[n, method_name] = MM.check()
     return df
+# test_functions(5)
+def stat_functions(bound):
+    df_times = pd.DataFrame()
+    df_add = pd.DataFrame()
+    df_mul = pd.DataFrame()
+    df_test = pd.DataFrame()
+    MM = MatrixMultiplier(create_M_2(1), create_M_2(1))
+    for n in range(2, bound):
+        MM.A, MM.B = create_M_2(n), create_M_2(n)
+        methods = {"Iterative":MM.iterative, "Binet":MM.binet, "Strassen":MM.strassen, "AlphaStrassen":MM.alpha_strassen, "AlphaBinet":MM.alpha_binet, "IterativeForBinet":MM.iterative}
+        for method_name, method in methods.items():
+            MM.reset_counter()
+            print(n, method_name[0], end=" ")
+            if (method_name == "AlphaBinet" or method_name == "IterativeForBinet") and n > 5 : continue
+            if method_name == "AlphaBinet":
+                MM.A, MM.B = create_matrices_for_alphabinet(n)
+            start_time = time()
+            method()
+            df_times.at[n, method_name] = time() - start_time
+            df_add.at[n, method_name] = MM.get_current_flops()["add"]
+            df_mul.at[n, method_name] = MM.get_current_flops()["mul"]
+            df_test.at[n, method_name] = MM.check()
+    return df_times, df_add, df_mul, df_test
+df_s = stat_functions(10)
+def plot_stats(dfs):
+    titles = ["Methods' times comparison", "Methods' addition counts comparison", "Methods' multiplication counts comparison"]
+    y_labels = ["Time [s]", "Addition count", "Multiplication count"]
+    fig, axes = plt.subplots(nrows=6, ncols=1, figsize=(8, 18*2))
+    i = 0
+    for df, title, y_label in zip(dfs, titles, y_labels):
 
-test_functions(3)
+        df_alpha = df[['AlphaBinet', 'IterativeForBinet']]
+        df.pop("AlphaBinet")
+        df.pop("IterativeForBinet")
+        # Polynomial interpolation and plotting
+        plt.figure(figsize=(10, 6))
+        sns.set(style="whitegrid")
+        df_2 = [df, df_alpha]
+        for j in range(2):
+            ax = axes[i + j]
+            for method in df_2[j].columns:
+                x = df_2[j].index
+                y = df_2[j][method]
+
+
+                y=y.dropna(how='all')
+                x=x.dropna(how='all')[:len(y)]
+                # print(x)
+                # print(y)
+
+
+                # Polynomial interpolation
+                coefficients = np.polyfit(x, y, len(x) - 1)
+                polynomial = np.poly1d(coefficients)
+
+                # Generate interpolated x values
+                x_interp = np.linspace(min(x), max(x), 100)
+
+                # Plot the interpolated curve
+                ax.plot(x_interp, polynomial(x_interp), label=method)
+                ax.scatter(x, y)
+
+            # Set labels and title
+            s = ""
+            if j == 1:
+                s = " (Matrices of sizes 4*2^x $\\times$ 4*2^x and 4*2^x $\\times$ 5*2^x)"
+            else:
+                s = " (Matrices of sizes 2^x $\\times$ 2^x and 2^x $\\times$ 2^x)"
+            ax.set_xlabel('Size od matrices ($\log_2$ scale)' + s)
+            ax.set_ylabel(y_label)
+            ax.set_title(title)
+
+            # Show legend
+            ax.legend()
+        i += 2
+
+    plt.show()
+dfs = [df.copy() for df in df_s]
+# dfs = [pd.read_csv("csv/df_"+str(i)+".csv", index_col=0) for i in range(4)]
+
+plot_stats(dfs[:3])
+print(dfs[3])
+for i, df in enumerate(df_s):
+    df.to_csv("csv/df_"+str(i)+".csv")
+MMM = MatrixMultiplier(np.array([[1, 2],[3, 4]]), np.array([[1, 2], [3, 4]]))
+MMM.binet()
+MMM.result
