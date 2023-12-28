@@ -1,0 +1,25 @@
+,k,compression ratio,compressed,type
+0,2.0,1.0,0.0,no_permutation
+1,2.0,1.0,0.0,minimum_degree_permutation
+2,2.0,1.0,0.0,cuthill_mckee
+3,2.0,1.0,0.0,reverse_cuthill_mckee
+4,2.0,4.002932551319648,1.0,no_permutation
+5,2.0,6.408450704225352,1.0,minimum_degree_permutation
+6,2.0,2.5609756097560976,1.0,cuthill_mckee
+7,2.0,2.5609756097560976,1.0,reverse_cuthill_mckee
+8,3.0,1.0,0.0,no_permutation
+9,3.0,1.0,0.0,minimum_degree_permutation
+10,3.0,1.0,0.0,cuthill_mckee
+11,3.0,1.0,0.0,reverse_cuthill_mckee
+12,3.0,1.2300311093802054,1.0,no_permutation
+13,3.0,1.315351614440904,1.0,minimum_degree_permutation
+14,3.0,1.2412132633203756,1.0,cuthill_mckee
+15,3.0,1.2412132633203756,1.0,reverse_cuthill_mckee
+16,4.0,1.0,0.0,no_permutation
+17,4.0,1.0,0.0,minimum_degree_permutation
+18,4.0,1.0,0.0,cuthill_mckee
+19,4.0,1.0,0.0,reverse_cuthill_mckee
+20,4.0,1.0813807721914996,1.0,no_permutation
+21,4.0,1.0824524366094053,1.0,minimum_degree_permutation
+22,4.0,1.061621205221082,1.0,cuthill_mckee
+23,4.0,1.061621205221082,1.0,reverse_cuthill_mckee
